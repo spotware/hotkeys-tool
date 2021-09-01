@@ -107,7 +107,7 @@ namespace cAlgo.Robots
         [Parameter("Text Color", DefaultValue = "Black", Group = "Chart Controls")]
         public string TextColor { get; set; }
 
-        [Parameter("Opacity", DefaultValue = 0.6, MinValue = 0, MaxValue = 1, Group = "Chart Controls")]
+        [Parameter("Opacity", DefaultValue = 0.5, MinValue = 0, MaxValue = 1, Group = "Chart Controls")]
         public double Opacity { get; set; }
 
         [Parameter("Margin", DefaultValue = 5, MinValue = 0, Group = "Chart Controls")]
@@ -336,7 +336,7 @@ namespace cAlgo.Robots
 
         private string GetHotkeyText(Key key, ModifierKeys modifier)
         {
-            return modifier == ModifierKeys.None ? key.ToString() : string.Format("{0}+{1}", key, modifier);
+            return modifier == ModifierKeys.None ? key.ToString() : string.Format("{0}+{1}", modifier, key);
         }
 
         private string GetObjectName(ChartObjectType type)
