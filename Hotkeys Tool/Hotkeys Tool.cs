@@ -10,6 +10,10 @@ namespace cAlgo.Robots
         private double? _stopLossInPips = null;
         private double? _takeProfitInPips = null;
 
+        private Color _drawingColor;
+
+        private const string _drawingObjectsNamePrefix = "HotkeysTool";
+
         [Parameter("Volume (Units)", DefaultValue = 1000, Step = 1, MinValue = 0, Group = "Trading")]
         public double Volume { get; set; }
 
@@ -67,6 +71,30 @@ namespace cAlgo.Robots
         [Parameter("Cancel All Stop Limit Key", DefaultValue = Key.V, Group = "Trading")]
         public Key CancelAllStopLimitKey { get; set; }
 
+        [Parameter("Color", DefaultValue = "Red", Group = "Drawing")]
+        public string DrawingColor { get; set; }
+
+        [Parameter("Color Alpha", DefaultValue = 130, MinValue = 0, MaxValue = 255, Group = "Drawing")]
+        public int DrawingColorAlpha { get; set; }
+
+        [Parameter("Modifier Key", DefaultValue = ModifierKeys.Alt, Group = "Drawing")]
+        public ModifierKeys DrawingModifierKey { get; set; }
+
+        [Parameter("Vertical Line Key", DefaultValue = Key.D, Group = "Drawing")]
+        public Key VerticalLineKey { get; set; }
+
+        [Parameter("Horizontal Line Key", DefaultValue = Key.F, Group = "Drawing")]
+        public Key HorizontalLineKey { get; set; }
+
+        [Parameter("Trend Line Key", DefaultValue = Key.G, Group = "Drawing")]
+        public Key TrendLineKey { get; set; }
+
+        [Parameter("Rectangle Key", DefaultValue = Key.H, Group = "Drawing")]
+        public Key RectangleKey { get; set; }
+
+        [Parameter("Triangle Key", DefaultValue = Key.J, Group = "Drawing")]
+        public Key TriangleKey { get; set; }
+
         [Parameter("Horizontal Alignment", DefaultValue = HorizontalAlignment.Right, Group = "Chart Controls")]
         public HorizontalAlignment HorizontalAlignment { get; set; }
 
@@ -98,14 +126,17 @@ namespace cAlgo.Robots
 
             PendingOrderDistanceInPips *= Symbol.PipSize;
 
+            _drawingColor = GetColor(DrawingColor, DrawingColorAlpha);
+
             AddTradingHotkeys();
+            AddDrawingHotkeys();
 
             ShowHotkeysOnChart();
         }
 
         private void ShowHotkeysOnChart()
         {
-            var grid = new Grid(13, 2)
+            var grid = new Grid(20, 2)
             {
                 HorizontalAlignment = HorizontalAlignment,
                 VerticalAlignment = VerticalAlignment,
@@ -120,9 +151,7 @@ namespace cAlgo.Robots
             textBlocksStyle.Set(ControlProperty.FontWeight, FontWeight);
             textBlocksStyle.Set(ControlProperty.ForegroundColor, GetColor(TextColor));
 
-            var tradingHotkeysTextblock = new TextBlock { Text = "Trading", HorizontalAlignment = HorizontalAlignment.Center, Style = textBlocksStyle };
-
-            grid.AddChild(tradingHotkeysTextblock, 0, 0, 1, 2);
+            grid.AddChild(new TextBlock { Text = "Trading", HorizontalAlignment = HorizontalAlignment.Center, Style = textBlocksStyle }, 0, 0, 1, 2);
 
             grid.AddChild(new TextBlock { Text = "Buy Market", Style = textBlocksStyle }, 1, 0);
             grid.AddChild(new TextBlock { Text = GetHotkeyText(BuyMarketKey, TradingModifierKey), Style = textBlocksStyle }, 1, 1);
@@ -160,6 +189,23 @@ namespace cAlgo.Robots
             grid.AddChild(new TextBlock { Text = "Cancel All Stop Limit", Style = textBlocksStyle }, 12, 0);
             grid.AddChild(new TextBlock { Text = GetHotkeyText(CancelAllStopLimitKey, TradingModifierKey), Style = textBlocksStyle }, 12, 1);
 
+            grid.AddChild(new TextBlock { Text = "Drawing", HorizontalAlignment = HorizontalAlignment.Center, Style = textBlocksStyle }, 13, 0, 1, 2);
+
+            grid.AddChild(new TextBlock { Text = "Vertical Line", Style = textBlocksStyle }, 14, 0);
+            grid.AddChild(new TextBlock { Text = GetHotkeyText(VerticalLineKey, DrawingModifierKey), Style = textBlocksStyle }, 14, 1);
+
+            grid.AddChild(new TextBlock { Text = "Horizontal Line", Style = textBlocksStyle }, 15, 0);
+            grid.AddChild(new TextBlock { Text = GetHotkeyText(HorizontalLineKey, DrawingModifierKey), Style = textBlocksStyle }, 15, 1);
+
+            grid.AddChild(new TextBlock { Text = "Trend Line", Style = textBlocksStyle }, 16, 0);
+            grid.AddChild(new TextBlock { Text = GetHotkeyText(TrendLineKey, DrawingModifierKey), Style = textBlocksStyle }, 16, 1);
+
+            grid.AddChild(new TextBlock { Text = "Rectangle", Style = textBlocksStyle }, 17, 0);
+            grid.AddChild(new TextBlock { Text = GetHotkeyText(RectangleKey, DrawingModifierKey), Style = textBlocksStyle }, 17, 1);
+
+            grid.AddChild(new TextBlock { Text = "Triangle", Style = textBlocksStyle }, 18, 0);
+            grid.AddChild(new TextBlock { Text = GetHotkeyText(TriangleKey, DrawingModifierKey), Style = textBlocksStyle }, 18, 1);
+
             Chart.AddControl(grid);
         }
 
@@ -177,6 +223,55 @@ namespace cAlgo.Robots
             Chart.AddHotkey(() => PlaceOrder(PendingOrderType.StopLimit, TradeType.Buy), BuyStopLimitKey, TradingModifierKey);
             Chart.AddHotkey(() => PlaceOrder(PendingOrderType.StopLimit, TradeType.Sell), SellStopLimitKey, TradingModifierKey);
             Chart.AddHotkey(() => CancelOrders(PendingOrderType.StopLimit), CancelAllStopLimitKey, TradingModifierKey);
+        }
+
+        private void AddDrawingHotkeys()
+        {
+            Chart.AddHotkey(() => Draw(ChartObjectType.VerticalLine), VerticalLineKey, DrawingModifierKey);
+            Chart.AddHotkey(() => Draw(ChartObjectType.HorizontalLine), HorizontalLineKey, DrawingModifierKey);
+            Chart.AddHotkey(() => Draw(ChartObjectType.TrendLine), TrendLineKey, DrawingModifierKey);
+            Chart.AddHotkey(() => Draw(ChartObjectType.Rectangle), RectangleKey, DrawingModifierKey);
+            Chart.AddHotkey(() => Draw(ChartObjectType.Triangle), TriangleKey, DrawingModifierKey);
+        }
+
+        private void Draw(ChartObjectType type)
+        {
+            ChartObject chartObject = null;
+
+            switch (type)
+            {
+                case ChartObjectType.VerticalLine:
+                    chartObject = Chart.DrawVerticalLine(GetObjectName(type), Chart.LastVisibleBarIndex - 1, _drawingColor);
+                    break;
+
+                case ChartObjectType.HorizontalLine:
+                    chartObject = Chart.DrawHorizontalLine(GetObjectName(type), Chart.BottomY + (Chart.TopY - Chart.BottomY) / 2, _drawingColor);
+                    break;
+
+                case ChartObjectType.TrendLine:
+                    chartObject = Chart.DrawTrendLine(GetObjectName(type), Chart.FirstVisibleBarIndex + 1, Chart.BottomY, Chart.LastVisibleBarIndex - 1, Chart.TopY, _drawingColor);
+                    break;
+
+                case ChartObjectType.Rectangle:
+                    chartObject = Chart.DrawRectangle(GetObjectName(type), Chart.FirstVisibleBarIndex + 1, Chart.BottomY, Chart.LastVisibleBarIndex - 1, Chart.TopY, _drawingColor);
+                    break;
+
+                case ChartObjectType.Triangle:
+                    chartObject = Chart.DrawTriangle(GetObjectName(type), Chart.FirstVisibleBarIndex, Chart.BottomY, Chart.FirstVisibleBarIndex + (Chart.LastVisibleBarIndex - Chart.FirstVisibleBarIndex) / 2, Chart.TopY, Chart.LastVisibleBarIndex, Chart.BottomY, _drawingColor);
+                    break;
+            }
+
+            if (chartObject != null)
+            {
+                chartObject.IsInteractive = true;
+
+                var chartShape = chartObject as ChartShape;
+
+                if (chartShape != null)
+                {
+                    chartShape.IsFilled = true;
+                }
+            }
         }
 
         private void CancelOrders(PendingOrderType orderType)
@@ -242,6 +337,11 @@ namespace cAlgo.Robots
         private string GetHotkeyText(Key key, ModifierKeys modifier)
         {
             return modifier == ModifierKeys.None ? key.ToString() : string.Format("{0}+{1}", key, modifier);
+        }
+
+        private string GetObjectName(ChartObjectType type)
+        {
+            return string.Format("{0}_{1}_{2}", _drawingObjectsNamePrefix, type, DateTimeOffset.Now.Ticks);
         }
     }
 }
