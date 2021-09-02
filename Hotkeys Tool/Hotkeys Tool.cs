@@ -238,10 +238,13 @@ namespace cAlgo.Robots
         {
             ChartObject chartObject = null;
 
+            var barsToCover = new Lazy<int>(() => (Chart.LastVisibleBarIndex - Chart.FirstVisibleBarIndex) / 3);
+            var priceToCover = new Lazy<double>(() => (Chart.TopY - Chart.BottomY) / 3);
+
             switch (type)
             {
                 case ChartObjectType.VerticalLine:
-                    chartObject = Chart.DrawVerticalLine(GetObjectName(type), Chart.LastVisibleBarIndex - 1, _drawingColor);
+                    chartObject = Chart.DrawVerticalLine(GetObjectName(type), Chart.FirstVisibleBarIndex + (Chart.LastVisibleBarIndex - Chart.FirstVisibleBarIndex) / 2, _drawingColor);
                     break;
 
                 case ChartObjectType.HorizontalLine:
@@ -249,15 +252,16 @@ namespace cAlgo.Robots
                     break;
 
                 case ChartObjectType.TrendLine:
-                    chartObject = Chart.DrawTrendLine(GetObjectName(type), Chart.FirstVisibleBarIndex + 1, Chart.BottomY, Chart.LastVisibleBarIndex - 1, Chart.TopY, _drawingColor);
+                    chartObject = Chart.DrawTrendLine(GetObjectName(type), Chart.FirstVisibleBarIndex + barsToCover.Value, Chart.BottomY + priceToCover.Value, Chart.LastVisibleBarIndex - barsToCover.Value, Chart.TopY - priceToCover.Value, _drawingColor);
                     break;
 
                 case ChartObjectType.Rectangle:
-                    chartObject = Chart.DrawRectangle(GetObjectName(type), Chart.FirstVisibleBarIndex + 1, Chart.BottomY, Chart.LastVisibleBarIndex - 1, Chart.TopY, _drawingColor);
+                    chartObject = Chart.DrawRectangle(GetObjectName(type), Chart.FirstVisibleBarIndex + barsToCover.Value, Chart.BottomY + priceToCover.Value, Chart.LastVisibleBarIndex - barsToCover.Value, Chart.TopY - priceToCover.Value, _drawingColor);
                     break;
 
                 case ChartObjectType.Triangle:
-                    chartObject = Chart.DrawTriangle(GetObjectName(type), Chart.FirstVisibleBarIndex, Chart.BottomY, Chart.FirstVisibleBarIndex + (Chart.LastVisibleBarIndex - Chart.FirstVisibleBarIndex) / 2, Chart.TopY, Chart.LastVisibleBarIndex, Chart.BottomY, _drawingColor);
+                    chartObject = Chart.DrawTriangle(GetObjectName(type), Chart.FirstVisibleBarIndex + barsToCover.Value, Chart.BottomY + priceToCover.Value, Chart.FirstVisibleBarIndex + (Chart.LastVisibleBarIndex - Chart.FirstVisibleBarIndex) / 2, Chart.TopY - priceToCover.Value,
+                        Chart.LastVisibleBarIndex - barsToCover.Value, Chart.BottomY + priceToCover.Value, _drawingColor);
                     break;
             }
 
