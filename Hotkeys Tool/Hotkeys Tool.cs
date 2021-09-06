@@ -414,10 +414,5 @@ namespace cAlgo.Robots
         {
             return string.Format("{0}_{1}_{2}", _drawingObjectsNamePrefix, type, DateTimeOffset.Now.Ticks);
         }
-
-        private double ToPips(double price)
-        {
-            return price * Symbol.TickSize / Symbol.PipSize * Math.Pow(10, Symbol.Digits);
-        }
     }
 }
