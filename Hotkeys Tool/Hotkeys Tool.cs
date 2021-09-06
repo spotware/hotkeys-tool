@@ -95,6 +95,24 @@ namespace cAlgo.Robots
         [Parameter("Triangle Key", DefaultValue = Key.J, Group = "Drawing")]
         public Key TriangleKey { get; set; }
 
+        [Parameter("Ellipse Key", DefaultValue = Key.K, Group = "Drawing")]
+        public Key EllipseKey { get; set; }
+
+        [Parameter("Equidistant Channel Key", DefaultValue = Key.L, Group = "Drawing")]
+        public Key EquidistantChannelKey { get; set; }
+
+        [Parameter("Andrews Pitchfork Key", DefaultValue = Key.A, Group = "Drawing")]
+        public Key AndrewsPitchforkKey { get; set; }
+
+        [Parameter("Fibonacci Retracement Key", DefaultValue = Key.R, Group = "Drawing")]
+        public Key FibonacciRetracementKey { get; set; }
+
+        [Parameter("Fibonacci Fan Key", DefaultValue = Key.T, Group = "Drawing")]
+        public Key FibonacciFanKey { get; set; }
+
+        [Parameter("Fibonacci Expansion Key", DefaultValue = Key.U, Group = "Drawing")]
+        public Key FibonacciExpansionKey { get; set; }
+
         [Parameter("Horizontal Alignment", DefaultValue = HorizontalAlignment.Right, Group = "Chart Controls")]
         public HorizontalAlignment HorizontalAlignment { get; set; }
 
@@ -136,7 +154,7 @@ namespace cAlgo.Robots
 
         private void ShowHotkeysOnChart()
         {
-            var grid = new Grid(20, 2)
+            var grid = new Grid(25, 2)
             {
                 HorizontalAlignment = HorizontalAlignment,
                 VerticalAlignment = VerticalAlignment,
@@ -206,6 +224,24 @@ namespace cAlgo.Robots
             grid.AddChild(new TextBlock { Text = "Triangle", Style = textBlocksStyle }, 18, 0);
             grid.AddChild(new TextBlock { Text = GetHotkeyText(TriangleKey, DrawingModifierKey), Style = textBlocksStyle }, 18, 1);
 
+            grid.AddChild(new TextBlock { Text = "Ellipse", Style = textBlocksStyle }, 19, 0);
+            grid.AddChild(new TextBlock { Text = GetHotkeyText(EllipseKey, DrawingModifierKey), Style = textBlocksStyle }, 19, 1);
+
+            grid.AddChild(new TextBlock { Text = "Equidistant Channel", Style = textBlocksStyle }, 20, 0);
+            grid.AddChild(new TextBlock { Text = GetHotkeyText(EquidistantChannelKey, DrawingModifierKey), Style = textBlocksStyle }, 20, 1);
+
+            grid.AddChild(new TextBlock { Text = "Andrews Pitchfork", Style = textBlocksStyle }, 21, 0);
+            grid.AddChild(new TextBlock { Text = GetHotkeyText(AndrewsPitchforkKey, DrawingModifierKey), Style = textBlocksStyle }, 21, 1);
+
+            grid.AddChild(new TextBlock { Text = "Fibonacci Retracement", Style = textBlocksStyle }, 22, 0);
+            grid.AddChild(new TextBlock { Text = GetHotkeyText(FibonacciRetracementKey, DrawingModifierKey), Style = textBlocksStyle }, 22, 1);
+
+            grid.AddChild(new TextBlock { Text = "Fibonacci Fan", Style = textBlocksStyle }, 23, 0);
+            grid.AddChild(new TextBlock { Text = GetHotkeyText(FibonacciFanKey, DrawingModifierKey), Style = textBlocksStyle }, 23, 1);
+
+            grid.AddChild(new TextBlock { Text = "Fibonacci Expansion", Style = textBlocksStyle }, 24, 0);
+            grid.AddChild(new TextBlock { Text = GetHotkeyText(FibonacciExpansionKey, DrawingModifierKey), Style = textBlocksStyle }, 24, 1);
+
             Chart.AddControl(grid);
         }
 
@@ -232,6 +268,12 @@ namespace cAlgo.Robots
             Chart.AddHotkey(() => Draw(ChartObjectType.TrendLine), TrendLineKey, DrawingModifierKey);
             Chart.AddHotkey(() => Draw(ChartObjectType.Rectangle), RectangleKey, DrawingModifierKey);
             Chart.AddHotkey(() => Draw(ChartObjectType.Triangle), TriangleKey, DrawingModifierKey);
+            Chart.AddHotkey(() => Draw(ChartObjectType.Ellipse), EllipseKey, DrawingModifierKey);
+            Chart.AddHotkey(() => Draw(ChartObjectType.EquidistantChannel), EquidistantChannelKey, DrawingModifierKey);
+            Chart.AddHotkey(() => Draw(ChartObjectType.AndrewsPitchfork), AndrewsPitchforkKey, DrawingModifierKey);
+            Chart.AddHotkey(() => Draw(ChartObjectType.FibonacciRetracement), FibonacciRetracementKey, DrawingModifierKey);
+            Chart.AddHotkey(() => Draw(ChartObjectType.FibonacciFan), FibonacciFanKey, DrawingModifierKey);
+            Chart.AddHotkey(() => Draw(ChartObjectType.FibonacciExpansion), FibonacciExpansionKey, DrawingModifierKey);
         }
 
         private void Draw(ChartObjectType type)
@@ -263,6 +305,31 @@ namespace cAlgo.Robots
                     chartObject = Chart.DrawTriangle(GetObjectName(type), Chart.FirstVisibleBarIndex + barsToCover.Value, Chart.BottomY + priceToCover.Value, Chart.FirstVisibleBarIndex + (Chart.LastVisibleBarIndex - Chart.FirstVisibleBarIndex) / 2, Chart.TopY - priceToCover.Value,
                         Chart.LastVisibleBarIndex - barsToCover.Value, Chart.BottomY + priceToCover.Value, _drawingColor);
                     break;
+
+                case ChartObjectType.Ellipse:
+                    chartObject = Chart.DrawEllipse(GetObjectName(type), Chart.FirstVisibleBarIndex + barsToCover.Value, Chart.BottomY + priceToCover.Value, Chart.LastVisibleBarIndex - barsToCover.Value, Chart.TopY - priceToCover.Value, _drawingColor);
+                    break;
+
+                case ChartObjectType.EquidistantChannel:
+                    chartObject = Chart.DrawEquidistantChannel(GetObjectName(type), Chart.FirstVisibleBarIndex + barsToCover.Value, Chart.BottomY + priceToCover.Value, Chart.LastVisibleBarIndex - barsToCover.Value, Chart.TopY - priceToCover.Value, priceToCover.Value / 2, _drawingColor);
+                    break;
+
+                case ChartObjectType.AndrewsPitchfork:
+                    chartObject = Chart.DrawAndrewsPitchfork(GetObjectName(type), Chart.FirstVisibleBarIndex + barsToCover.Value, Chart.BottomY + priceToCover.Value, Chart.FirstVisibleBarIndex + (Chart.LastVisibleBarIndex - Chart.FirstVisibleBarIndex) / 2, Chart.TopY - priceToCover.Value,
+                        Chart.LastVisibleBarIndex - barsToCover.Value, Chart.BottomY + priceToCover.Value, _drawingColor);
+                    break;
+
+                case ChartObjectType.FibonacciRetracement:
+                    chartObject = Chart.DrawFibonacciRetracement(GetObjectName(type), Chart.FirstVisibleBarIndex + barsToCover.Value, Chart.BottomY + priceToCover.Value, Chart.LastVisibleBarIndex - barsToCover.Value, Chart.TopY - priceToCover.Value, _drawingColor);
+                    break;
+
+                case ChartObjectType.FibonacciFan:
+                    chartObject = Chart.DrawFibonacciFan(GetObjectName(type), Chart.FirstVisibleBarIndex + barsToCover.Value, Chart.BottomY + priceToCover.Value, Chart.LastVisibleBarIndex - barsToCover.Value, Chart.TopY - priceToCover.Value, _drawingColor);
+                    break;
+
+                case ChartObjectType.FibonacciExpansion:
+                    chartObject = Chart.DrawFibonacciExpansion(GetObjectName(type), Chart.FirstVisibleBarIndex + barsToCover.Value, Chart.BottomY + priceToCover.Value, Chart.FirstVisibleBarIndex + (Chart.LastVisibleBarIndex - Chart.FirstVisibleBarIndex) / 2, Chart.TopY - priceToCover.Value,
+                        Chart.LastVisibleBarIndex - barsToCover.Value, Chart.BottomY + priceToCover.Value, _drawingColor); break;
             }
 
             if (chartObject != null)
@@ -346,6 +413,11 @@ namespace cAlgo.Robots
         private string GetObjectName(ChartObjectType type)
         {
             return string.Format("{0}_{1}_{2}", _drawingObjectsNamePrefix, type, DateTimeOffset.Now.Ticks);
+        }
+
+        private double ToPips(double price)
+        {
+            return price * Symbol.TickSize / Symbol.PipSize * Math.Pow(10, Symbol.Digits);
         }
     }
 }
