@@ -12,6 +12,8 @@ namespace cAlgo.Robots
 
         private Color _drawingColor;
 
+        private ScrollViewer _hotkeysTableScrollViewer;
+
         private const string _drawingObjectsNamePrefix = "HotkeysTool";
 
         [Parameter("Volume (Units)", DefaultValue = 1000, Step = 1, MinValue = 0, Group = "Trading")]
@@ -113,28 +115,34 @@ namespace cAlgo.Robots
         [Parameter("Fibonacci Expansion Key", DefaultValue = Key.U, Group = "Drawing")]
         public Key FibonacciExpansionKey { get; set; }
 
-        [Parameter("Horizontal Alignment", DefaultValue = HorizontalAlignment.Right, Group = "Chart Controls")]
+        [Parameter("Show/Hide Key", DefaultValue = Key.M, Group = "Hotkeys Table")]
+        public Key HotkeysTableShowHideKey { get; set; }
+
+        [Parameter("Show/Hide Modifier Key", DefaultValue = ModifierKeys.None, Group = "Hotkeys Table")]
+        public ModifierKeys HotkeysTableShowHideModifierKey { get; set; }
+
+        [Parameter("Horizontal Alignment", DefaultValue = HorizontalAlignment.Right, Group = "Hotkeys Table")]
         public HorizontalAlignment HorizontalAlignment { get; set; }
 
-        [Parameter("Vertical Alignment", DefaultValue = VerticalAlignment.Top, Group = "Chart Controls")]
+        [Parameter("Vertical Alignment", DefaultValue = VerticalAlignment.Top, Group = "Hotkeys Table")]
         public VerticalAlignment VerticalAlignment { get; set; }
 
-        [Parameter("Background Color", DefaultValue = "Yellow", Group = "Chart Controls")]
+        [Parameter("Background Color", DefaultValue = "Yellow", Group = "Hotkeys Table")]
         public string BackgroundColor { get; set; }
 
-        [Parameter("Text Color", DefaultValue = "Black", Group = "Chart Controls")]
+        [Parameter("Text Color", DefaultValue = "Black", Group = "Hotkeys Table")]
         public string TextColor { get; set; }
 
-        [Parameter("Opacity", DefaultValue = 0.5, MinValue = 0, MaxValue = 1, Group = "Chart Controls")]
+        [Parameter("Opacity", DefaultValue = 0.5, MinValue = 0, MaxValue = 1, Group = "Hotkeys Table")]
         public double Opacity { get; set; }
 
-        [Parameter("Margin", DefaultValue = 5, MinValue = 0, Group = "Chart Controls")]
+        [Parameter("Margin", DefaultValue = 5, MinValue = 0, Group = "Hotkeys Table")]
         public double Margin { get; set; }
 
-        [Parameter("Font Size", DefaultValue = 14, MinValue = 0, Group = "Chart Controls")]
+        [Parameter("Font Size", DefaultValue = 14, MinValue = 0, Group = "Hotkeys Table")]
         public double FontSize { get; set; }
 
-        [Parameter("Font Weight", DefaultValue = FontWeight.Normal, Group = "Chart Controls")]
+        [Parameter("Font Weight", DefaultValue = FontWeight.Normal, Group = "Hotkeys Table")]
         public FontWeight FontWeight { get; set; }
 
         protected override void OnStart()
@@ -150,15 +158,21 @@ namespace cAlgo.Robots
             AddDrawingHotkeys();
 
             ShowHotkeysOnChart();
+
+            Chart.AddHotkey(ShowHideHotkeysTable, HotkeysTableShowHideKey, HotkeysTableShowHideModifierKey);
+        }
+
+        private void ShowHideHotkeysTable(ChartKeyboardEventArgs obj)
+        {
+            _hotkeysTableScrollViewer.IsVisible = !_hotkeysTableScrollViewer.IsVisible;
         }
 
         private void ShowHotkeysOnChart()
         {
-            var grid = new Grid(25, 2)
+            var grid = new Grid(27, 2)
             {
                 HorizontalAlignment = HorizontalAlignment,
                 VerticalAlignment = VerticalAlignment,
-                Opacity = Opacity,
                 BackgroundColor = GetColor(BackgroundColor)
             };
 
@@ -242,7 +256,20 @@ namespace cAlgo.Robots
             grid.AddChild(new TextBlock { Text = "Fibonacci Expansion", Style = textBlocksStyle }, 24, 0);
             grid.AddChild(new TextBlock { Text = GetHotkeyText(FibonacciExpansionKey, DrawingModifierKey), Style = textBlocksStyle }, 24, 1);
 
-            Chart.AddControl(grid);
+            grid.AddChild(new TextBlock { Text = "Others", HorizontalAlignment = HorizontalAlignment.Center, Style = textBlocksStyle }, 25, 0, 1, 2);
+
+            grid.AddChild(new TextBlock { Text = "Show/Hide Table", Style = textBlocksStyle }, 26, 0);
+            grid.AddChild(new TextBlock { Text = GetHotkeyText(HotkeysTableShowHideKey, HotkeysTableShowHideModifierKey), Style = textBlocksStyle }, 26, 1);
+
+            _hotkeysTableScrollViewer = new ScrollViewer()
+            {
+                Content = grid,
+                HorizontalAlignment = HorizontalAlignment,
+                VerticalAlignment = VerticalAlignment,
+                Opacity = Opacity
+            };
+
+            Chart.AddControl(_hotkeysTableScrollViewer);
         }
 
         private void AddTradingHotkeys()
