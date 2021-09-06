@@ -378,7 +378,7 @@ namespace cAlgo.Robots
 
             foreach (var order in botOrders)
             {
-                if (order.OrderType != orderType) continue;
+                if (order.Label.Equals(Label, StringComparison.OrdinalIgnoreCase) == false || order.OrderType != orderType) continue;
 
                 CancelPendingOrder(order);
             }
