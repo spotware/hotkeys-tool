@@ -115,6 +115,12 @@ namespace cAlgo.Robots
         [Parameter("Fibonacci Expansion Key", DefaultValue = Key.U, Group = "Drawing")]
         public Key FibonacciExpansionKey { get; set; }
 
+        [Parameter("Modifier Key", DefaultValue = ModifierKeys.Shift, Group = "Chart Display")]
+        public ModifierKeys ChartDisplayModifierKey { get; set; }
+
+        [Parameter("Deal Map", DefaultValue = Key.D, Group = "Chart Display")]
+        public Key DealMapKey { get; set; }
+
         [Parameter("Show/Hide Key", DefaultValue = Key.M, Group = "Hotkeys Table")]
         public Key HotkeysTableShowHideKey { get; set; }
 
@@ -156,6 +162,7 @@ namespace cAlgo.Robots
 
             AddTradingHotkeys();
             AddDrawingHotkeys();
+            AddChartDisplayHotkeys();
 
             ShowHotkeysOnChart();
 
@@ -169,7 +176,7 @@ namespace cAlgo.Robots
 
         private void ShowHotkeysOnChart()
         {
-            var grid = new Grid(27, 2)
+            var grid = new Grid(29, 2)
             {
                 HorizontalAlignment = HorizontalAlignment,
                 VerticalAlignment = VerticalAlignment,
@@ -256,10 +263,15 @@ namespace cAlgo.Robots
             grid.AddChild(new TextBlock { Text = "Fibonacci Expansion", Style = textBlocksStyle }, 24, 0);
             grid.AddChild(new TextBlock { Text = GetHotkeyText(FibonacciExpansionKey, DrawingModifierKey), Style = textBlocksStyle }, 24, 1);
 
-            grid.AddChild(new TextBlock { Text = "Others", HorizontalAlignment = HorizontalAlignment.Center, Style = textBlocksStyle }, 25, 0, 1, 2);
+            grid.AddChild(new TextBlock { Text = "Chart Display", HorizontalAlignment = HorizontalAlignment.Center, Style = textBlocksStyle }, 25, 0, 1, 2);
 
-            grid.AddChild(new TextBlock { Text = "Show/Hide Table", Style = textBlocksStyle }, 26, 0);
-            grid.AddChild(new TextBlock { Text = GetHotkeyText(HotkeysTableShowHideKey, HotkeysTableShowHideModifierKey), Style = textBlocksStyle }, 26, 1);
+            grid.AddChild(new TextBlock { Text = "Show/Hide Deal Map", Style = textBlocksStyle }, 26, 0);
+            grid.AddChild(new TextBlock { Text = GetHotkeyText(DealMapKey, ChartDisplayModifierKey), Style = textBlocksStyle }, 26, 1);
+
+            grid.AddChild(new TextBlock { Text = "Others", HorizontalAlignment = HorizontalAlignment.Center, Style = textBlocksStyle }, 27, 0, 1, 2);
+
+            grid.AddChild(new TextBlock { Text = "Show/Hide Table", Style = textBlocksStyle }, 28, 0);
+            grid.AddChild(new TextBlock { Text = GetHotkeyText(HotkeysTableShowHideKey, HotkeysTableShowHideModifierKey), Style = textBlocksStyle }, 28, 1);
 
             _hotkeysTableScrollViewer = new ScrollViewer()
             {
@@ -301,6 +313,11 @@ namespace cAlgo.Robots
             Chart.AddHotkey(() => Draw(ChartObjectType.FibonacciRetracement), FibonacciRetracementKey, DrawingModifierKey);
             Chart.AddHotkey(() => Draw(ChartObjectType.FibonacciFan), FibonacciFanKey, DrawingModifierKey);
             Chart.AddHotkey(() => Draw(ChartObjectType.FibonacciExpansion), FibonacciExpansionKey, DrawingModifierKey);
+        }
+
+        private void AddChartDisplayHotkeys()
+        {
+            Chart.AddHotkey(() => Chart.DisplaySettings.DealMap = !Chart.DisplaySettings.DealMap, DealMapKey, ChartDisplayModifierKey);
         }
 
         private void Draw(ChartObjectType type)
